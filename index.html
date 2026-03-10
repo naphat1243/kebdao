@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⭐ ดาวแห่งความดี</title>
+
+<!-- LIFF SDK -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =====================
+   CONFIG — แก้ตรงนี้
+   ===================== */
+/*
+  1. แทนที่ YOUR_LIFF_ID ด้วย LIFF ID จาก LINE Developers
+  2. แทนที่ YOUR_APPS_SCRIPT_URL ด้วย URL จาก Apps Script deploy
+  (ดูคู่มือใน comment ด้านล่างสุดของไฟล์)
+*/
+
+:root {
+  --sun: #FFD600;
+  --sun2: #FFB300;
+  --sky: #0D1B4B;
+  --sky2: #162258;
+  --sky3: #1E2F72;
+  --pink: #FF6B9D;
+  --mint: #00E5A0;
+  --purple: #C77DFF;
+  --coral: #FF7043;
+  --blue: #40C4FF;
+  --glass: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.10);
+  --text: #FFFFFF;
+  --dim: rgba(255,255,255,0.55);
+  --radius: 20px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: 'Mitr', sans-serif;
+  background: var(--sky);
+  color: var(--text);
+  height: 100%; overflow: hidden;
+}
+
+/* ── Starfield ── */
+#starsBg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.sdot {
+  position: absolute; border-radius: 50%; background: #fff;
+  animation: tw var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes tw { 0%,100%{opacity:.1;transform:scale(1)} 50%{opacity:.85;transform:scale(1.4)} }
+
+/* ── Loading splash ── */
+#splash {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--sky);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+}
+.splash-star { font-size: 52px; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+.splash-text { font-size: 18px; font-weight: 600; color: var(--sun); }
+.splash-sub { font-size: 13px; color: var(--dim); }
+
+/* ── App shell ── */
+#app {
+  position: fixed; inset: 0; z-index: 1;
+  display: flex; flex-direction: column;
+  max-width: 430px; margin: 0 auto;
+}
+
+/* ── Header ── */
+.hdr {
+  background: linear-gradient(180deg, rgba(13,27,75,0.98) 70%, transparent);
+  padding: 16px 18px 0;
+  flex-shrink: 0;
+  backdrop-filter: blur(12px);
+}
+.hdr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.hdr-title {
+  font-size: 20px; font-weight: 700;
+  background: linear-gradient(135deg, var(--sun), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hdr-user { font-size: 12px; color: var(--dim); margin-top: 1px; }
+.hdr-add {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--glass);
+  border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; transition: background .2s;
+}
+.hdr-add:active { background: rgba(255,214,0,.15); }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 12px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  background: var(--glass); border: 1px solid var(--border); color: var(--dim);
+  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+}
+.tab.on {
+  background: var(--sun); color: var(--sky); border-color: var(--sun);
+  box-shadow: 0 0 14px rgba(255,214,0,.35);
+}
+
+/* ── Pages ── */
+.pages { flex: 1; overflow: hidden; position: relative; }
+.page {
+  position: absolute; inset: 0; overflow-y: auto; padding: 14px 18px 100px;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+  scrollbar-width: none;
+}
+.page::-webkit-scrollbar { display: none; }
+.page.on { opacity: 1; pointer-events: all; }
+
+.sec-title {
+  font-size: 11px; font-weight: 600; color: var(--dim);
+  letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 10px;
+}
+
+/* ── Kids grid ── */
+.kids-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kid-card {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; cursor: pointer;
+  transition: all .2s; position: relative; overflow: hidden;
+}
+.kid-card.sel { border-color: var(--sun); background: rgba(255,214,0,.08); }
+.kid-card:active { transform: scale(.96); }
+.kid-emoji { font-size: 30px; margin-bottom: 8px; display: block; }
+.kid-name { font-size: 14px; font-weight: 600; }
+.kid-stars { font-size: 12px; color: var(--sun); margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+.kid-star-n { font-size: 20px; font-weight: 700; }
+.kid-rank {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--pink); border-radius: 8px; padding: 2px 7px;
+  font-size: 9px; font-weight: 700;
+}
+
+.add-card {
+  background: transparent; border: 2px dashed var(--border);
+  border-radius: var(--radius); min-height: 120px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; cursor: pointer; color: var(--dim); transition: all .2s;
+  font-family: 'Mitr', sans-serif; font-size: 13px;
+}
+.add-card:hover { border-color: var(--sun); color: var(--sun); }
+.add-card-plus { font-size: 28px; }
+
+/* ── Action page ── */
+.kid-chips { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; padding-bottom: 2px; }
+.kid-chips::-webkit-scrollbar { display: none; }
+.kid-chip {
+  flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  background: var(--glass); border: 1px solid var(--border); color: var(--dim);
+  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+}
+.kid-chip.on { font-weight: 700; color: #fff; }
+
+.panel {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
+}
+.panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.panel-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.panel-name { font-size: 15px; font-weight: 600; }
+.panel-count { font-size: 12px; color: var(--sun); margin-top: 2px; }
+
+/* Amount row */
+.amt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.amt-label { font-size: 12px; color: var(--dim); width: 70px; flex-shrink: 0; }
+.amt-ctrl {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+}
+.amt-btn {
+  width: 40px; height: 40px; border: none; background: transparent;
+  color: var(--text); font-size: 22px; cursor: pointer; transition: background .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.amt-btn:active { background: rgba(255,255,255,.1); }
+.amt-in {
+  width: 48px; text-align: center; font-size: 20px; font-weight: 700;
+  color: var(--sun); border: none; background: transparent; outline: none;
+  font-family: 'Mitr', sans-serif;
+}
+.amt-in::-webkit-outer-spin-button,
+.amt-in::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* Presets */
+.preset-label { font-size: 12px; color: var(--dim); margin-bottom: 7px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip {
+  padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  background: var(--glass); border: 1px solid var(--border);
+  cursor: pointer; color: var(--dim); transition: all .15s; font-family: 'Mitr', sans-serif;
+}
+.chip.earn { border-color: rgba(0,229,160,.25); color: var(--mint); }
+.chip.spend { border-color: rgba(255,107,157,.25); color: var(--pink); }
+.chip.picked { transform: scale(1.05); font-weight: 700; }
+.chip.earn.picked { background: rgba(0,229,160,.12); border-color: var(--mint); }
+.chip.spend.picked { background: rgba(255,107,157,.12); border-color: var(--pink); }
+
+.reason-in {
+  width: 100%; padding: 10px 13px; border-radius: 12px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Mitr', sans-serif; font-size: 13px;
+  outline: none; resize: none; height: 64px; transition: border-color .2s;
+}
+.reason-in:focus { border-color: rgba(255,214,0,.4); }
+.reason-in::placeholder { color: var(--dim); }
+
+.act-btns { display: flex; gap: 10px; margin-top: 14px; }
+.btn-earn, .btn-spend {
+  flex: 1; padding: 13px; border-radius: 14px; border: none;
+  font-family: 'Mitr', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.btn-earn { background: linear-gradient(135deg, var(--mint), #00C27A); color: var(--sky); }
+.btn-earn:active { transform: scale(.97); }
+.btn-spend { background: linear-gradient(135deg, var(--pink), #D81B60); color: #fff; }
+.btn-spend:active { transform: scale(.97); }
+.btn-earn:disabled, .btn-spend:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── History ── */
+.filter-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; padding-bottom: 2px; }
+.filter-row::-webkit-scrollbar { display: none; }
+.fchip {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  background: var(--glass); border: 1px solid var(--border); color: var(--dim);
+  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+}
+.fchip.on { background: var(--sky3); border-color: rgba(255,255,255,.3); color: #fff; }
+
+.hist-list { display: flex; flex-direction: column; gap: 9px; }
+.hist-item {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 16px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 11px;
+  animation: sli .3s ease;
+}
+@keyframes sli { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.hist-emo {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.hist-info { flex: 1; min-width: 0; }
+.hist-kid { font-size: 12px; font-weight: 600; }
+.hist-reason { font-size: 11px; color: var(--dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-time { font-size: 10px; color: var(--dim); margin-top: 1px; }
+.hist-amt { font-size: 16px; font-weight: 700; flex-shrink: 0; }
+.hist-amt.earn { color: var(--mint); }
+.hist-amt.spend { color: var(--pink); }
+
+.empty { text-align: center; padding: 50px 20px; color: var(--dim); }
+.empty-ico { font-size: 44px; margin-bottom: 12px; }
+
+/* ── Bottom nav ── */
+.bnav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; z-index: 50;
+  background: rgba(13,27,75,.96); backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex; padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+}
+.nbtn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 7px; border: none; background: transparent; color: var(--dim);
+  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+}
+.nbtn.on { color: var(--sun); }
+.nbtn-ico { font-size: 20px; }
+.nbtn-lbl { font-size: 9px; font-weight: 500; }
+
+/* ── Modal ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: #162258; border-radius: 26px 26px 0 0; padding: 24px 22px 40px;
+  width: 100%; max-width: 430px;
+  transform: translateY(100%); transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.overlay.open .modal { transform: translateY(0); }
+.modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,.18); border-radius: 2px; margin: 0 auto 18px; }
+.modal-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 18px; }
+.inp-group { margin-bottom: 13px; }
+.inp-lbl { font-size: 12px; color: var(--dim); margin-bottom: 6px; }
+.txt-in {
+  width: 100%; padding: 11px 14px; border-radius: 13px;
+  background: rgba(255,255,255,.07); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Mitr', sans-serif; font-size: 13px;
+  outline: none; transition: border-color .2s;
+}
+.txt-in:focus { border-color: var(--sun); }
+.txt-in::placeholder { color: var(--dim); }
+
+.emo-pick { display: flex; flex-wrap: wrap; gap: 9px; }
+.emo-opt {
+  width: 46px; height: 46px; border-radius: 50%; font-size: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--glass); border: 2px solid transparent; cursor: pointer; transition: all .15s;
+}
+.emo-opt.ch { border-color: var(--sun); background: rgba(255,214,0,.1); transform: scale(1.1); }
+
+.col-pick { display: flex; gap: 9px; flex-wrap: wrap; }
+.col-opt {
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  border: 3px solid transparent; transition: all .15s;
+}
+.col-opt.ch { border-color: #fff; transform: scale(1.15); }
+
+.modal-btn {
+  width: 100%; padding: 14px; border-radius: 15px; border: none; margin-top: 8px;
+  background: linear-gradient(135deg, var(--sun), var(--sun2));
+  color: var(--sky); font-family: 'Mitr', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.modal-btn:active { transform: scale(.98); }
+.modal-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%) translateY(12px);
+  background: rgba(22,34,88,.97); border: 1px solid var(--border);
+  backdrop-filter: blur(12px); border-radius: 18px; padding: 11px 18px;
+  font-size: 13px; font-weight: 500; z-index: 300;
+  opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap;
+  max-width: calc(100vw - 40px); text-align: center;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok { border-color: rgba(0,229,160,.4); }
+.toast.err { border-color: rgba(255,107,157,.4); }
+
+/* ── Star burst ── */
+@keyframes burst { 0%{transform:scale(0) rotate(0deg);opacity:1} 100%{transform:scale(2) rotate(360deg);opacity:0} }
+.sburst { position: fixed; pointer-events: none; z-index: 400; font-size: 28px; animation: burst .7s ease forwards; }
+
+/* ── Spinner ── */
+.spin {
+  display: inline-block; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.2); border-top-color: #fff;
+  animation: sp .6s linear infinite; vertical-align: middle;
+}
+@keyframes sp { to{transform:rotate(360deg)} }
+
+/* ── Config warning ── */
+.cfg-warn {
+  background: rgba(255,176,0,.1); border: 1px solid rgba(255,176,0,.4);
+  border-radius: 14px; padding: 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.7;
+}
+.cfg-warn strong { color: var(--sun); display: block; margin-bottom: 4px; font-size: 13px; }
+.cfg-warn code {
+  background: rgba(255,255,255,.1); border-radius: 6px;
+  padding: 1px 6px; font-size: 11px; font-family: monospace; word-break: break-all;
+}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div id="starsBg"></div>
+
+<!-- Loading splash -->
+<div id="splash">
+  <div class="splash-star">⭐</div>
+  <div class="splash-text">ดาวแห่งความดี</div>
+  <div class="splash-sub">กำลังโหลด...</div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none;">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-title">⭐ ดาวแห่งความดี</div>
+        <div class="hdr-user" id="hdrUser">กำลังโหลด...</div>
+      </div>
+      <div class="hdr-add" onclick="openAddModal()">＋</div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="goTab('kids',this)">👦 เด็กๆ</button>
+      <button class="tab" onclick="goTab('action',this)">⭐ ให้/ใช้ดาว</button>
+      <button class="tab" onclick="goTab('history',this)">📋 ประวัติ</button>
+    </div>
+  </div>
+
+  <!-- Pages -->
+  <div class="pages">
+
+    <!-- Kids -->
+    <div class="page on" id="pg-kids">
+      <div id="cfgWarn" class="cfg-warn" style="display:none;">
+        <strong>⚙️ ต้องตั้งค่าก่อนใช้งาน</strong>
+        แก้ไขตัวแปรใน JS ด้านบนของไฟล์:<br>
+        • <code>APPS_SCRIPT_URL</code> — URL จาก Google Apps Script<br>
+        • <code>LIFF_ID</code> — LIFF ID จาก LINE Developers<br>
+        ดูคู่มือการ deploy ที่ comment ท้ายไฟล์
+      </div>
+      <div class="sec-title">เด็กๆ ของเรา</div>
+      <div class="kids-grid" id="kidsGrid"></div>
+    </div>
+
+    <!-- Action -->
+    <div class="page" id="pg-action">
+      <div class="sec-title">เลือกเด็ก</div>
+      <div class="kid-chips" id="kidChips"></div>
+
+      <div class="panel" id="actionPanel" style="display:none;">
+        <div class="panel-head">
+          <div class="panel-avatar" id="pAvatar"></div>
+          <div>
+            <div class="panel-name" id="pName"></div>
+            <div class="panel-count">⭐ <span id="pCount">0</span> ดาว</div>
+          </div>
+        </div>
+
+        <div class="amt-row">
+          <div class="amt-label">จำนวนดาว</div>
+          <div class="amt-ctrl">
+            <button class="amt-btn" onclick="chAmt(-1)">−</button>
+            <input type="number" class="amt-in" id="amtIn" value="1" min="1" max="99">
+            <button class="amt-btn" onclick="chAmt(1)">+</button>
+          </div>
+        </div>
+
+        <div class="preset-label">เหตุผลที่ได้ดาว ✨</div>
+        <div class="presets" id="earnPresets">
+          <div class="chip earn" onclick="pickPreset(this,'ช่วยงานบ้าน')">🏠 ช่วยงานบ้าน</div>
+          <div class="chip earn" onclick="pickPreset(this,'ทำการบ้าน')">📚 ทำการบ้าน</div>
+          <div class="chip earn" onclick="pickPreset(this,'ตั้งใจเรียน')">🎓 ตั้งใจเรียน</div>
+          <div class="chip earn" onclick="pickPreset(this,'มีน้ำใจ')">💖 มีน้ำใจ</div>
+          <div class="chip earn" onclick="pickPreset(this,'รักษาสุขภาพ')">🏃 รักษาสุขภาพ</div>
+          <div class="chip earn" onclick="pickPreset(this,'กินข้าวครบ')">🍱 กินข้าวครบ</div>
+          <div class="chip earn" onclick="pickPreset(this,'นอนตรงเวลา')">😴 นอนตรงเวลา</div>
+          <div class="chip earn" onclick="pickPreset(this,'สุภาพ')">😊 สุภาพ</div>
+        </div>
+
+        <div class="preset-label" style="margin-top:10px;">เหตุผลที่ใช้ดาว 💫</div>
+        <div class="presets" id="spendPresets">
+          <div class="chip spend" onclick="pickPreset(this,'ดูการ์ตูน 30 นาที')">📺 การ์ตูน</div>
+          <div class="chip spend" onclick="pickPreset(this,'เล่นเกม 30 นาที')">🎮 เล่นเกม</div>
+          <div class="chip spend" onclick="pickPreset(this,'กินของว่าง')">🍭 ของว่าง</div>
+          <div class="chip spend" onclick="pickPreset(this,'ไปสวนสนุก')">🎡 สวนสนุก</div>
+          <div class="chip spend" onclick="pickPreset(this,'ซื้อของเล่น')">🧸 ของเล่น</div>
+          <div class="chip spend" onclick="pickPreset(this,'เลือกเมนูอาหาร')">🍔 เลือกเมนู</div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="preset-label">หรือระบุเหตุผลเอง</div>
+          <textarea class="reason-in" id="reasonIn" placeholder="เขียนเหตุผล..."></textarea>
+        </div>
+
+        <div class="act-btns">
+          <button class="btn-earn" id="btnEarn" onclick="doAction('earn')">⭐ ให้ดาว</button>
+          <button class="btn-spend" id="btnSpend" onclick="doAction('spend')">💫 ใช้ดาว</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="page" id="pg-history">
+      <div class="filter-row" id="typeFilter">
+        <div class="fchip on" onclick="fType('all',this)">🌟 ทั้งหมด</div>
+        <div class="fchip" onclick="fType('earn',this)">⭐ ได้ดาว</div>
+        <div class="fchip" onclick="fType('spend',this)">💫 ใช้ดาว</div>
+      </div>
+      <div class="filter-row" id="kidFilter"></div>
+      <div class="hist-list" id="histList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom nav -->
+<div class="bnav">
+  <button class="nbtn on" onclick="goTab('kids',null,this)">
+    <div class="nbtn-ico">👦</div><div class="nbtn-lbl">เด็กๆ</div>
+  </button>
+  <button class="nbtn" onclick="goTab('action',null,this)">
+    <div class="nbtn-ico">⭐</div><div class="nbtn-lbl">ให้/ใช้ดาว</div>
+  </button>
+  <button class="nbtn" onclick="goTab('history',null,this)">
+    <div class="nbtn-ico">📋</div><div class="nbtn-lbl">ประวัติ</div>
+  </button>
+</div>
+
+<!-- Add Kid Modal -->
+<div class="overlay" id="addModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ เพิ่มเด็ก</div>
+    <div class="inp-group">
+      <div class="inp-lbl">ชื่อเด็ก</div>
+      <input type="text" class="txt-in" id="newName" placeholder="เช่น น้องนา">
+    </div>
+    <div class="inp-group">
+      <div class="inp-lbl">เลือก Emoji</div>
+      <div class="emo-pick" id="emoPick">
+        <div class="emo-opt ch" onclick="pickEmo(this)" data-e="👦">👦</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="👧">👧</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🧒">🧒</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="👶">👶</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🐻">🐻</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🦊">🦊</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🐱">🐱</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🐶">🐶</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🦄">🦄</div>
+        <div class="emo-opt" onclick="pickEmo(this)" data-e="🐸">🐸</div>
+      </div>
+    </div>
+    <div class="inp-group">
+      <div class="inp-lbl">สีธีม</div>
+      <div class="col-pick" id="colPick">
+        <div class="col-opt ch" onclick="pickCol(this)" data-c="#FFD600" style="background:#FFD600"></div>
+        <div class="col-opt" onclick="pickCol(this)" data-c="#FF6B9D" style="background:#FF6B9D"></div>
+        <div class="col-opt" onclick="pickCol(this)" data-c="#00E5A0" style="background:#00E5A0"></div>
+        <div class="col-opt" onclick="pickCol(this)" data-c="#C77DFF" style="background:#C77DFF"></div>
+        <div class="col-opt" onclick="pickCol(this)" data-c="#FF7043" style="background:#FF7043"></div>
+        <div class="col-opt" onclick="pickCol(this)" data-c="#40C4FF" style="background:#40C4FF"></div>
+      </div>
+    </div>
+    <button class="modal-btn" id="addBtn" onclick="addKid()">บันทึก ✨</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ╔══════════════════════════════════════════════╗
+// ║           🔧 ตั้งค่าตรงนี้เลย               ║
+// ╚══════════════════════════════════════════════╝
+
+const LIFF_ID          = 'YOUR_LIFF_ID';           // จาก LINE Developers Console
+const APPS_SCRIPT_URL  = 'YOUR_APPS_SCRIPT_URL';   // จาก Google Apps Script deploy
+
+// ════════════════════════════════════════════════
+
+const IS_CONFIGURED = LIFF_ID !== 'YOUR_LIFF_ID' && APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_URL';
+
+// ── State ──
+let kids = [];
+let history = [];
+let selKidId = null;
+let histType = 'all';
+let histKid = 'all';
+let newEmo = '👦';
+let newCol = '#FFD600';
+let userName = '';
+let userId = '';
+let loading = false;
+
+// ── Stars bg ──
+(function(){
+  const bg = document.getElementById('starsBg');
+  for(let i=0;i<70;i++){
+    const s = document.createElement('div');
+    s.className = 'sdot';
+    const sz = Math.random()*2.4+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;opacity:${Math.random()*.6+.1}`;
+    bg.appendChild(s);
+  }
+})();
+
+// ── API helpers ──
+async function api(action, data={}) {
+  if (!IS_CONFIGURED) {
+    // Demo mode — use localStorage
+    return apiLocal(action, data);
+  }
+  const params = new URLSearchParams({ action, ...data });
+  const r = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
+  if (!r.ok) throw new Error('API error ' + r.status);
+  return r.json();
+}
+
+// LocalStorage fallback (demo mode)
+function apiLocal(action, data) {
+  const kids_ = JSON.parse(localStorage.getItem('_kids') || '[]');
+  const hist_  = JSON.parse(localStorage.getItem('_hist') || '[]');
+
+  if (action === 'getKids')    return { ok:true, kids: kids_ };
+  if (action === 'getHistory') return { ok:true, history: hist_.slice(0,80) };
+
+  if (action === 'addKid') {
+    const kid = { id: Date.now()+'', name: data.name, emoji: data.emoji, color: data.color, stars: 0 };
+    kids_.push(kid);
+    localStorage.setItem('_kids', JSON.stringify(kids_));
+    return { ok:true, kid };
+  }
+
+  if (action === 'transaction') {
+    const kid = kids_.find(k => k.id === data.kidId);
+    if (!kid) return { ok:false, error:'kid not found' };
+    const amt = parseInt(data.amount);
+    const type = data.type;
+    if (type === 'spend' && kid.stars < amt) return { ok:false, error:'not enough stars' };
+    kid.stars += type === 'earn' ? amt : -amt;
+    if (kid.stars < 0) kid.stars = 0;
+    localStorage.setItem('_kids', JSON.stringify(kids_));
+    const h = { id: Date.now()+'', kidId: kid.id, kidName: kid.name, kidEmoji: kid.emoji, kidColor: kid.color, type, amount: amt, reason: data.reason, time: new Date().toISOString(), by: userName||'ไม่ระบุ' };
+    hist_.unshift(h);
+    localStorage.setItem('_hist', JSON.stringify(hist_));
+    return { ok:true, stars: kid.stars, history: h };
+  }
+  return { ok:false };
+}
+
+// ── Init ──
+async function init() {
+  // Show config warning if not configured
+  if (!IS_CONFIGURED) {
+    document.getElementById('cfgWarn').style.display = 'block';
+  }
+
+  // Try LIFF
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      userName = profile.displayName;
+      userId = profile.userId;
+      document.getElementById('hdrUser').textContent = '👤 ' + userName;
+    } else {
+      if (IS_CONFIGURED) liff.login();
+      document.getElementById('hdrUser').textContent = IS_CONFIGURED ? 'กำลัง login...' : '🔧 Demo Mode';
+    }
+  } catch(e) {
+    // Not in LIFF (browser preview)
+    userName = 'ผู้ดูแล';
+    document.getElementById('hdrUser').textContent = IS_CONFIGURED ? '⚠️ เปิดผ่าน LINE' : '🔧 Demo Mode (Browser)';
+  }
+
+  await loadKids();
+  await loadHistory();
+
+  // Auto-select first kid for action tab
+  if (kids.length > 0) selKidId = kids[0].id;
+
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  renderKids();
+  renderActionChips();
+  renderHistory();
+}
+
+// ── Load ──
+async function loadKids() {
+  try {
+    const r = await api('getKids');
+    if (r.ok) kids = r.kids;
+  } catch(e) { toast('⚠️ โหลดข้อมูลไม่ได้', 'err'); }
+}
+
+async function loadHistory() {
+  try {
+    const r = await api('getHistory');
+    if (r.ok) history = r.history;
+  } catch(e) {}
+}
+
+// ── Render Kids ──
+function renderKids() {
+  const g = document.getElementById('kidsGrid');
+  g.innerHTML = '';
+  kids.forEach(k => {
+    const cnt = history.filter(h => h.kidId === k.id && h.type === 'earn').length;
+    const d = document.createElement('div');
+    d.className = 'kid-card' + (selKidId === k.id ? ' sel' : '');
+    d.onclick = () => { selKidId = k.id; renderKids(); };
+    d.innerHTML = `
+      <span class="kid-emoji">${k.emoji}</span>
+      <div class="kid-name">${k.name}</div>
+      <div class="kid-stars"><span class="kid-star-n">${k.stars}</span>&nbsp;ดาว ⭐</div>
+      ${cnt > 0 ? `<div class="kid-rank">🔥 ${cnt}×</div>` : ''}
+    `;
+    d.style.setProperty('--kc', k.color);
+    if (selKidId === k.id) d.style.borderColor = k.color;
+    g.appendChild(d);
+  });
+  const add = document.createElement('div');
+  add.className = 'add-card';
+  add.onclick = openAddModal;
+  add.innerHTML = `<div class="add-card-plus">＋</div><span>เพิ่มเด็ก</span>`;
+  g.appendChild(add);
+}
+
+// ── Render Action chips ──
+function renderActionChips() {
+  const row = document.getElementById('kidChips');
+  row.innerHTML = '';
+  kids.forEach(k => {
+    const c = document.createElement('div');
+    c.className = 'kid-chip' + (selKidId === k.id ? ' on' : '');
+    if (selKidId === k.id) { c.style.background = k.color + '22'; c.style.borderColor = k.color; }
+    c.innerHTML = k.emoji + ' ' + k.name;
+    c.onclick = () => { selKidId = k.id; renderActionChips(); renderActionPanel(); };
+    row.appendChild(c);
+  });
+  renderActionPanel();
+}
+
+function renderActionPanel() {
+  const panel = document.getElementById('actionPanel');
+  const kid = kids.find(k => k.id === selKidId);
+  if (!kid) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  document.getElementById('pAvatar').innerHTML = `<span style="font-size:26px;">${kid.emoji}</span>`;
+  document.getElementById('pAvatar').style.background = kid.color + '33';
+  document.getElementById('pName').textContent = kid.name;
+  document.getElementById('pCount').textContent = kid.stars;
+}
+
+// ── Actions ──
+function chAmt(d) {
+  const i = document.getElementById('amtIn');
+  i.value = Math.max(1, Math.min(99, (parseInt(i.value)||1) + d));
+}
+
+function pickPreset(el, text) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('picked'));
+  el.classList.add('picked');
+  document.getElementById('reasonIn').value = text;
+}
+
+async function doAction(type) {
+  if (loading) return;
+  const kid = kids.find(k => k.id === selKidId);
+  if (!kid) { toast('⚠️ เลือกเด็กก่อนนะ', 'err'); return; }
+  const amt = parseInt(document.getElementById('amtIn').value) || 1;
+  const reason = document.getElementById('reasonIn').value.trim() || (type === 'earn' ? 'ทำความดี' : 'แลกรางวัล');
+
+  if (type === 'spend' && kid.stars < amt) {
+    toast(`❌ ดาวไม่พอ! ${kid.name} มี ${kid.stars} ดาว`, 'err'); return;
+  }
+
+  setLoading(true);
+  try {
+    const r = await api('transaction', { kidId: kid.id, type, amount: amt, reason, by: userName || 'ไม่ระบุ', userId });
+    if (!r.ok) { toast('❌ ' + (r.error || 'เกิดข้อผิดพลาด'), 'err'); return; }
+
+    // Update local state
+    kid.stars = r.stars !== undefined ? r.stars : (kid.stars + (type === 'earn' ? amt : -amt));
+    if (r.history) history.unshift(r.history);
+
+    if (type === 'earn') for(let i=0;i<5;i++) setTimeout(spawnBurst, i*100);
+    const msg = type === 'earn'
+      ? `⭐ ${kid.name} ได้ +${amt} ดาว! (รวม ${kid.stars})`
+      : `💫 ${kid.name} ใช้ ${amt} ดาว (เหลือ ${kid.stars})`;
+    toast(msg, type === 'earn' ? 'ok' : '');
+
+    // Reset
+    document.getElementById('reasonIn').value = '';
+    document.getElementById('amtIn').value = 1;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('picked'));
+
+    renderKids();
+    renderActionPanel();
+    renderHistory();
+  } catch(e) {
+    toast('❌ เชื่อมต่อไม่ได้ ลองใหม่', 'err');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function setLoading(on) {
+  loading = on;
+  document.getElementById('btnEarn').disabled = on;
+  document.getElementById('btnSpend').disabled = on;
+  if (on) {
+    document.getElementById('btnEarn').innerHTML = '<span class="spin"></span>';
+    document.getElementById('btnSpend').innerHTML = '<span class="spin"></span>';
+  } else {
+    document.getElementById('btnEarn').innerHTML = '⭐ ให้ดาว';
+    document.getElementById('btnSpend').innerHTML = '💫 ใช้ดาว';
+  }
+}
+
+// ── History ──
+function fType(t, el) {
+  histType = t;
+  document.querySelectorAll('#typeFilter .fchip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderHistory();
+}
+function fKid(k, el) {
+  histKid = k;
+  document.querySelectorAll('#kidFilter .fchip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderHistory();
+}
+
+function renderHistory() {
+  // Kid filter chips
+  const kf = document.getElementById('kidFilter');
+  kf.innerHTML = '';
+  const all = document.createElement('div');
+  all.className = 'fchip' + (histKid === 'all' ? ' on' : '');
+  all.innerHTML = '👥 ทุกคน';
+  all.onclick = function() { fKid('all', this); };
+  kf.appendChild(all);
+  kids.forEach(k => {
+    const c = document.createElement('div');
+    c.className = 'fchip' + (histKid === k.id ? ' on' : '');
+    c.innerHTML = k.emoji + ' ' + k.name;
+    c.onclick = function() { fKid(k.id, this); };
+    kf.appendChild(c);
+  });
+
+  let list = history;
+  if (histType !== 'all') list = list.filter(h => h.type === histType);
+  if (histKid !== 'all') list = list.filter(h => h.kidId === histKid);
+
+  const el = document.getElementById('histList');
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">✨</div><p>ยังไม่มีประวัติ</p></div>`;
+    return;
+  }
+  el.innerHTML = '';
+  list.slice(0, 60).forEach(h => {
+    const d = new Date(h.time);
+    const t = d.toLocaleDateString('th-TH',{day:'numeric',month:'short'}) + ' ' +
+              d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const item = document.createElement('div');
+    item.className = 'hist-item';
+    item.innerHTML = `
+      <div class="hist-emo" style="background:${h.kidColor||'rgba(255,255,255,.06)'}22">${h.kidEmoji||'👶'}</div>
+      <div class="hist-info">
+        <div class="hist-kid">${h.kidName} ${h.by ? '<span style="font-size:10px;color:var(--dim)">โดย '+h.by+'</span>' : ''}</div>
+        <div class="hist-reason">${h.reason}</div>
+        <div class="hist-time">${t}</div>
+      </div>
+      <div class="hist-amt ${h.type}">${h.type==='earn'?'+':'−'}${h.amount} ⭐</div>
+    `;
+    el.appendChild(item);
+  });
+}
+
+// ── Navigation ──
+function goTab(id, tabEl, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('on'));
+  document.getElementById('pg-' + id).classList.add('on');
+  if (tabEl) tabEl.classList.add('on');
+  if (navEl) navEl.classList.add('on');
+
+  // sync tab + nav
+  const i = {kids:0,action:1,history:2}[id];
+  document.querySelectorAll('.tab')[i].classList.add('on');
+  document.querySelectorAll('.nbtn')[i].classList.add('on');
+
+  if (id === 'action') { renderActionChips(); }
+  if (id === 'history') renderHistory();
+}
+
+// ── Add kid modal ──
+function openAddModal() {
+  document.getElementById('newName').value = '';
+  newEmo = '👦'; newCol = '#FFD600';
+  document.querySelectorAll('.emo-opt').forEach(e => e.classList.remove('ch'));
+  document.querySelector('.emo-opt[data-e="👦"]').classList.add('ch');
+  document.querySelectorAll('.col-opt').forEach(c => c.classList.remove('ch'));
+  document.querySelector('.col-opt[data-c="#FFD600"]').classList.add('ch');
+  document.getElementById('addModal').classList.add('open');
+}
+function closeModal(e) {
+  if (e.target === document.getElementById('addModal')) document.getElementById('addModal').classList.remove('open');
+}
+function pickEmo(el) {
+  document.querySelectorAll('.emo-opt').forEach(e => e.classList.remove('ch'));
+  el.classList.add('ch'); newEmo = el.dataset.e;
+}
+function pickCol(el) {
+  document.querySelectorAll('.col-opt').forEach(c => c.classList.remove('ch'));
+  el.classList.add('ch'); newCol = el.dataset.c;
+}
+
+async function addKid() {
+  const name = document.getElementById('newName').value.trim();
+  if (!name) { toast('⚠️ กรอกชื่อด้วยนะ', 'err'); return; }
+  const btn = document.getElementById('addBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> บันทึก';
+  try {
+    const r = await api('addKid', { name, emoji: newEmo, color: newCol });
+    if (!r.ok) { toast('❌ เพิ่มไม่ได้', 'err'); return; }
+    kids.push(r.kid);
+    selKidId = r.kid.id;
+    document.getElementById('addModal').classList.remove('open');
+    toast(`🎉 เพิ่ม ${name} แล้ว!`, 'ok');
+    renderKids();
+    renderActionChips();
+  } catch(e) {
+    toast('❌ เชื่อมต่อไม่ได้', 'err');
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'บันทึก ✨';
+  }
+}
+
+// ── Utils ──
+let toastTimer;
+function toast(msg, cls='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast ' + cls + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function spawnBurst() {
+  const el = document.createElement('div');
+  el.className = 'sburst'; el.textContent = '⭐';
+  el.style.left = (15 + Math.random() * 70) + '%';
+  el.style.top  = (25 + Math.random() * 50) + '%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 750);
+}
+
+// Start
+init();
+</script>
+
+</body>
+</html>
