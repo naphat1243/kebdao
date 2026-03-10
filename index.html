@@ -4,395 +4,361 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>⭐ ดาวแห่งความดี</title>
-
-<!-- LIFF SDK -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-/* =====================
-   CONFIG — แก้ตรงนี้
-   ===================== */
-/*
-  1. แทนที่ YOUR_LIFF_ID ด้วย LIFF ID จาก LINE Developers
-  2. แทนที่ YOUR_APPS_SCRIPT_URL ด้วย URL จาก Apps Script deploy
-  (ดูคู่มือใน comment ด้านล่างสุดของไฟล์)
-*/
-
 :root {
-  --sun: #FFD600;
-  --sun2: #FFB300;
-  --sky: #0D1B4B;
-  --sky2: #162258;
-  --sky3: #1E2F72;
-  --pink: #FF6B9D;
-  --mint: #00E5A0;
-  --purple: #C77DFF;
-  --coral: #FF7043;
-  --blue: #40C4FF;
-  --glass: rgba(255,255,255,0.06);
-  --border: rgba(255,255,255,0.10);
-  --text: #FFFFFF;
-  --dim: rgba(255,255,255,0.55);
-  --radius: 20px;
+  --sun: #FFD600; --sun2: #FFB300;
+  --sky: #0D1B4B; --sky2: #162258; --sky3: #1E2F72;
+  --pink: #FF6B9D; --mint: #00E5A0; --purple: #C77DFF;
+  --coral: #FF7043; --blue: #40C4FF;
+  --glass: rgba(255,255,255,0.06); --border: rgba(255,255,255,0.10);
+  --text: #FFFFFF; --dim: rgba(255,255,255,0.55); --radius: 20px;
 }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { font-family:'Mitr',sans-serif; background:var(--sky); color:var(--text); height:100%; overflow:hidden; }
 
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-html, body {
-  font-family: 'Mitr', sans-serif;
-  background: var(--sky);
-  color: var(--text);
-  height: 100%; overflow: hidden;
-}
-
-/* ── Starfield ── */
-#starsBg {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-}
-.sdot {
-  position: absolute; border-radius: 50%; background: #fff;
-  animation: tw var(--d) ease-in-out infinite var(--dl);
-}
+#starsBg { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.sdot { position:absolute; border-radius:50%; background:#fff; animation:tw var(--d) ease-in-out infinite var(--dl); }
 @keyframes tw { 0%,100%{opacity:.1;transform:scale(1)} 50%{opacity:.85;transform:scale(1.4)} }
+
+/* ── Family Code Screen ── */
+#familyScreen {
+  position:fixed; inset:0; z-index:500; background:var(--sky);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:32px 28px; gap:0;
+}
+.fam-star { font-size:56px; margin-bottom:16px; animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+.fam-title {
+  font-size:22px; font-weight:700; margin-bottom:6px;
+  background:linear-gradient(135deg,var(--sun),var(--pink));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.fam-sub { font-size:13px; color:var(--dim); margin-bottom:32px; text-align:center; line-height:1.7; }
+.fam-box {
+  width:100%; max-width:360px; background:var(--glass);
+  border:1px solid var(--border); border-radius:24px; padding:24px;
+}
+.fam-lbl { font-size:12px; color:var(--dim); margin-bottom:8px; }
+.fam-input-row { display:flex; gap:8px; margin-bottom:14px; }
+.fam-in {
+  flex:1; padding:13px 16px; border-radius:14px;
+  background:rgba(255,255,255,.08); border:1px solid var(--border);
+  color:var(--text); font-family:'Mitr',sans-serif; font-size:16px; font-weight:600;
+  outline:none; text-transform:uppercase; letter-spacing:2px; text-align:center;
+  transition:border-color .2s;
+}
+.fam-in:focus { border-color:var(--sun); }
+.fam-in::placeholder { color:var(--dim); letter-spacing:0; font-size:13px; font-weight:400; text-transform:none; }
+.fam-btn {
+  width:100%; padding:14px; border-radius:14px; border:none;
+  background:linear-gradient(135deg,var(--sun),var(--sun2));
+  color:var(--sky); font-family:'Mitr',sans-serif; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+.fam-btn:active { transform:scale(.98); }
+.fam-divider { text-align:center; color:var(--dim); font-size:12px; margin:12px 0; }
+.fam-gen-btn {
+  width:100%; padding:11px; border-radius:14px; border:1px solid var(--border);
+  background:var(--glass); color:var(--dim); font-family:'Mitr',sans-serif;
+  font-size:13px; cursor:pointer; transition:all .2s;
+}
+.fam-gen-btn:active { background:rgba(255,255,255,.1); }
+.fam-code-badge {
+  display:inline-block; background:rgba(255,214,0,.15); border:1px solid rgba(255,214,0,.4);
+  border-radius:10px; padding:4px 12px; font-size:13px; font-weight:700;
+  color:var(--sun); letter-spacing:2px; margin-top:4px;
+}
 
 /* ── Loading splash ── */
 #splash {
-  position: fixed; inset: 0; z-index: 999;
-  background: var(--sky);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  position:fixed; inset:0; z-index:998; background:var(--sky);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
 }
-.splash-star { font-size: 52px; animation: pulse 1.2s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
-.splash-text { font-size: 18px; font-weight: 600; color: var(--sun); }
-.splash-sub { font-size: 13px; color: var(--dim); }
+.splash-star { font-size:52px; animation:pulse 1.2s ease-in-out infinite; }
+.splash-text { font-size:18px; font-weight:600; color:var(--sun); }
+.splash-sub { font-size:13px; color:var(--dim); }
 
 /* ── App shell ── */
-#app {
-  position: fixed; inset: 0; z-index: 1;
-  display: flex; flex-direction: column;
-  max-width: 430px; margin: 0 auto;
-}
+#app { position:fixed; inset:0; z-index:1; display:flex; flex-direction:column; max-width:430px; margin:0 auto; }
 
 /* ── Header ── */
 .hdr {
-  background: linear-gradient(180deg, rgba(13,27,75,0.98) 70%, transparent);
-  padding: 16px 18px 0;
-  flex-shrink: 0;
-  backdrop-filter: blur(12px);
+  background:linear-gradient(180deg,rgba(13,27,75,0.98) 70%,transparent);
+  padding:16px 18px 0; flex-shrink:0; backdrop-filter:blur(12px);
 }
-.hdr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.hdr-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .hdr-title {
-  font-size: 20px; font-weight: 700;
-  background: linear-gradient(135deg, var(--sun), var(--pink));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-size:20px; font-weight:700;
+  background:linear-gradient(135deg,var(--sun),var(--pink));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
 }
-.hdr-user { font-size: 12px; color: var(--dim); margin-top: 1px; }
+.hdr-user { font-size:12px; color:var(--dim); margin-top:1px; }
+.hdr-right { display:flex; align-items:center; gap:8px; }
+.hdr-fam {
+  font-size:10px; font-weight:700; color:var(--sun);
+  background:rgba(255,214,0,.12); border:1px solid rgba(255,214,0,.3);
+  border-radius:10px; padding:3px 10px; cursor:pointer; letter-spacing:1px;
+}
 .hdr-add {
-  width: 36px; height: 36px; border-radius: 50%; background: var(--glass);
-  border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
-  font-size: 20px; cursor: pointer; transition: background .2s;
+  width:36px; height:36px; border-radius:50%; background:var(--glass);
+  border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; transition:background .2s;
 }
-.hdr-add:active { background: rgba(255,214,0,.15); }
+.hdr-add:active { background:rgba(255,214,0,.15); }
 
-/* ── Tabs ── */
-.tabs {
-  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 12px;
-}
-.tabs::-webkit-scrollbar { display: none; }
+.tabs { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:12px; }
+.tabs::-webkit-scrollbar { display:none; }
 .tab {
-  flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
-  background: var(--glass); border: 1px solid var(--border); color: var(--dim);
-  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+  flex-shrink:0; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600;
+  background:var(--glass); border:1px solid var(--border); color:var(--dim);
+  cursor:pointer; transition:all .2s; font-family:'Mitr',sans-serif;
 }
-.tab.on {
-  background: var(--sun); color: var(--sky); border-color: var(--sun);
-  box-shadow: 0 0 14px rgba(255,214,0,.35);
-}
+.tab.on { background:var(--sun); color:var(--sky); border-color:var(--sun); box-shadow:0 0 14px rgba(255,214,0,.35); }
 
-/* ── Pages ── */
-.pages { flex: 1; overflow: hidden; position: relative; }
+.pages { flex:1; overflow:hidden; position:relative; }
 .page {
-  position: absolute; inset: 0; overflow-y: auto; padding: 14px 18px 100px;
-  opacity: 0; pointer-events: none; transition: opacity .25s;
-  scrollbar-width: none;
+  position:absolute; inset:0; overflow-y:auto; padding:14px 18px 100px;
+  opacity:0; pointer-events:none; transition:opacity .25s; scrollbar-width:none;
 }
-.page::-webkit-scrollbar { display: none; }
-.page.on { opacity: 1; pointer-events: all; }
+.page::-webkit-scrollbar { display:none; }
+.page.on { opacity:1; pointer-events:all; }
+.sec-title { font-size:11px; font-weight:600; color:var(--dim); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:10px; }
 
-.sec-title {
-  font-size: 11px; font-weight: 600; color: var(--dim);
-  letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 10px;
-}
-
-/* ── Kids grid ── */
-.kids-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kids-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .kid-card {
-  background: var(--glass); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px; cursor: pointer;
-  transition: all .2s; position: relative; overflow: hidden;
+  background:var(--glass); border:1px solid var(--border);
+  border-radius:var(--radius); padding:14px; cursor:pointer;
+  transition:all .2s; position:relative; overflow:hidden;
 }
-.kid-card.sel { border-color: var(--sun); background: rgba(255,214,0,.08); }
-.kid-card:active { transform: scale(.96); }
-.kid-emoji { font-size: 30px; margin-bottom: 8px; display: block; }
-.kid-name { font-size: 14px; font-weight: 600; }
-.kid-stars { font-size: 12px; color: var(--sun); margin-top: 4px; display: flex; align-items: center; gap: 3px; }
-.kid-star-n { font-size: 20px; font-weight: 700; }
-.kid-rank {
-  position: absolute; top: 8px; right: 8px;
-  background: var(--pink); border-radius: 8px; padding: 2px 7px;
-  font-size: 9px; font-weight: 700;
-}
+.kid-card.sel { border-color:var(--sun); background:rgba(255,214,0,.08); }
+.kid-card:active { transform:scale(.96); }
+.kid-emoji { font-size:30px; margin-bottom:8px; display:block; }
+.kid-name { font-size:14px; font-weight:600; }
+.kid-stars { font-size:12px; color:var(--sun); margin-top:4px; display:flex; align-items:center; gap:3px; }
+.kid-star-n { font-size:20px; font-weight:700; }
+.kid-rank { position:absolute; top:8px; right:8px; background:var(--pink); border-radius:8px; padding:2px 7px; font-size:9px; font-weight:700; }
 
 .add-card {
-  background: transparent; border: 2px dashed var(--border);
-  border-radius: var(--radius); min-height: 120px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 6px; cursor: pointer; color: var(--dim); transition: all .2s;
-  font-family: 'Mitr', sans-serif; font-size: 13px;
+  background:transparent; border:2px dashed var(--border);
+  border-radius:var(--radius); min-height:120px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; cursor:pointer; color:var(--dim); transition:all .2s;
+  font-family:'Mitr',sans-serif; font-size:13px;
 }
-.add-card:hover { border-color: var(--sun); color: var(--sun); }
-.add-card-plus { font-size: 28px; }
+.add-card:hover { border-color:var(--sun); color:var(--sun); }
+.add-card-plus { font-size:28px; }
 
-/* ── Action page ── */
-.kid-chips { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; padding-bottom: 2px; }
-.kid-chips::-webkit-scrollbar { display: none; }
+.kid-chips { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; margin-bottom:14px; padding-bottom:2px; }
+.kid-chips::-webkit-scrollbar { display:none; }
 .kid-chip {
-  flex-shrink: 0; padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
-  background: var(--glass); border: 1px solid var(--border); color: var(--dim);
-  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+  flex-shrink:0; padding:7px 14px; border-radius:20px; font-size:12px; font-weight:500;
+  background:var(--glass); border:1px solid var(--border); color:var(--dim);
+  cursor:pointer; transition:all .2s; font-family:'Mitr',sans-serif;
 }
-.kid-chip.on { font-weight: 700; color: #fff; }
+.kid-chip.on { font-weight:700; color:#fff; }
 
-.panel {
-  background: var(--glass); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
-}
-.panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-.panel-avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 24px;
-}
-.panel-name { font-size: 15px; font-weight: 600; }
-.panel-count { font-size: 12px; color: var(--sun); margin-top: 2px; }
+.panel { background:var(--glass); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:14px; }
+.panel-head { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.panel-avatar { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; }
+.panel-name { font-size:15px; font-weight:600; }
+.panel-count { font-size:12px; color:var(--sun); margin-top:2px; }
 
-/* Amount row */
-.amt-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.amt-label { font-size: 12px; color: var(--dim); width: 70px; flex-shrink: 0; }
-.amt-ctrl {
-  display: flex; align-items: center;
-  background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
-}
-.amt-btn {
-  width: 40px; height: 40px; border: none; background: transparent;
-  color: var(--text); font-size: 22px; cursor: pointer; transition: background .15s;
-  display: flex; align-items: center; justify-content: center;
-}
-.amt-btn:active { background: rgba(255,255,255,.1); }
-.amt-in {
-  width: 48px; text-align: center; font-size: 20px; font-weight: 700;
-  color: var(--sun); border: none; background: transparent; outline: none;
-  font-family: 'Mitr', sans-serif;
-}
-.amt-in::-webkit-outer-spin-button,
-.amt-in::-webkit-inner-spin-button { -webkit-appearance: none; }
+.amt-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.amt-label { font-size:12px; color:var(--dim); width:70px; flex-shrink:0; }
+.amt-ctrl { display:flex; align-items:center; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.amt-btn { width:40px; height:40px; border:none; background:transparent; color:var(--text); font-size:22px; cursor:pointer; transition:background .15s; display:flex; align-items:center; justify-content:center; }
+.amt-btn:active { background:rgba(255,255,255,.1); }
+.amt-in { width:48px; text-align:center; font-size:20px; font-weight:700; color:var(--sun); border:none; background:transparent; outline:none; font-family:'Mitr',sans-serif; }
+.amt-in::-webkit-outer-spin-button, .amt-in::-webkit-inner-spin-button { -webkit-appearance:none; }
 
-/* Presets */
-.preset-label { font-size: 12px; color: var(--dim); margin-bottom: 7px; }
-.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.preset-label { font-size:12px; color:var(--dim); margin-bottom:7px; }
+.presets { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
 .chip {
-  padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 500;
-  background: var(--glass); border: 1px solid var(--border);
-  cursor: pointer; color: var(--dim); transition: all .15s; font-family: 'Mitr', sans-serif;
+  padding:5px 11px; border-radius:20px; font-size:11px; font-weight:500;
+  background:var(--glass); border:1px solid var(--border);
+  cursor:pointer; color:var(--dim); transition:all .15s; font-family:'Mitr',sans-serif;
 }
-.chip.earn { border-color: rgba(0,229,160,.25); color: var(--mint); }
-.chip.spend { border-color: rgba(255,107,157,.25); color: var(--pink); }
-.chip.picked { transform: scale(1.05); font-weight: 700; }
-.chip.earn.picked { background: rgba(0,229,160,.12); border-color: var(--mint); }
-.chip.spend.picked { background: rgba(255,107,157,.12); border-color: var(--pink); }
+.chip.earn { border-color:rgba(0,229,160,.25); color:var(--mint); }
+.chip.spend { border-color:rgba(255,107,157,.25); color:var(--pink); }
+.chip.picked { transform:scale(1.05); font-weight:700; }
+.chip.earn.picked { background:rgba(0,229,160,.12); border-color:var(--mint); }
+.chip.spend.picked { background:rgba(255,107,157,.12); border-color:var(--pink); }
 
 .reason-in {
-  width: 100%; padding: 10px 13px; border-radius: 12px;
-  background: rgba(255,255,255,.05); border: 1px solid var(--border);
-  color: var(--text); font-family: 'Mitr', sans-serif; font-size: 13px;
-  outline: none; resize: none; height: 64px; transition: border-color .2s;
+  width:100%; padding:10px 13px; border-radius:12px;
+  background:rgba(255,255,255,.05); border:1px solid var(--border);
+  color:var(--text); font-family:'Mitr',sans-serif; font-size:13px;
+  outline:none; resize:none; height:64px; transition:border-color .2s;
 }
-.reason-in:focus { border-color: rgba(255,214,0,.4); }
-.reason-in::placeholder { color: var(--dim); }
+.reason-in:focus { border-color:rgba(255,214,0,.4); }
+.reason-in::placeholder { color:var(--dim); }
 
-.act-btns { display: flex; gap: 10px; margin-top: 14px; }
+.act-btns { display:flex; gap:10px; margin-top:14px; }
 .btn-earn, .btn-spend {
-  flex: 1; padding: 13px; border-radius: 14px; border: none;
-  font-family: 'Mitr', sans-serif; font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+  flex:1; padding:13px; border-radius:14px; border:none;
+  font-family:'Mitr',sans-serif; font-size:14px; font-weight:700;
+  cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:5px;
 }
-.btn-earn { background: linear-gradient(135deg, var(--mint), #00C27A); color: var(--sky); }
-.btn-earn:active { transform: scale(.97); }
-.btn-spend { background: linear-gradient(135deg, var(--pink), #D81B60); color: #fff; }
-.btn-spend:active { transform: scale(.97); }
-.btn-earn:disabled, .btn-spend:disabled { opacity: .5; cursor: not-allowed; }
+.btn-earn { background:linear-gradient(135deg,var(--mint),#00C27A); color:var(--sky); }
+.btn-earn:active { transform:scale(.97); }
+.btn-spend { background:linear-gradient(135deg,var(--pink),#D81B60); color:#fff; }
+.btn-spend:active { transform:scale(.97); }
+.btn-earn:disabled, .btn-spend:disabled { opacity:.5; cursor:not-allowed; }
 
-/* ── History ── */
-.filter-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; padding-bottom: 2px; }
-.filter-row::-webkit-scrollbar { display: none; }
+.filter-row { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin-bottom:12px; padding-bottom:2px; }
+.filter-row::-webkit-scrollbar { display:none; }
 .fchip {
-  flex-shrink: 0; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
-  background: var(--glass); border: 1px solid var(--border); color: var(--dim);
-  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+  flex-shrink:0; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:600;
+  background:var(--glass); border:1px solid var(--border); color:var(--dim);
+  cursor:pointer; transition:all .2s; font-family:'Mitr',sans-serif;
 }
-.fchip.on { background: var(--sky3); border-color: rgba(255,255,255,.3); color: #fff; }
+.fchip.on { background:var(--sky3); border-color:rgba(255,255,255,.3); color:#fff; }
 
-.hist-list { display: flex; flex-direction: column; gap: 9px; }
+.hist-list { display:flex; flex-direction:column; gap:9px; }
 .hist-item {
-  background: var(--glass); border: 1px solid var(--border);
-  border-radius: 16px; padding: 12px 14px;
-  display: flex; align-items: center; gap: 11px;
-  animation: sli .3s ease;
+  background:var(--glass); border:1px solid var(--border);
+  border-radius:16px; padding:12px 14px;
+  display:flex; align-items:center; gap:11px; animation:sli .3s ease;
 }
 @keyframes sli { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-.hist-emo {
-  width: 38px; height: 38px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
-}
-.hist-info { flex: 1; min-width: 0; }
-.hist-kid { font-size: 12px; font-weight: 600; }
-.hist-reason { font-size: 11px; color: var(--dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hist-time { font-size: 10px; color: var(--dim); margin-top: 1px; }
-.hist-amt { font-size: 16px; font-weight: 700; flex-shrink: 0; }
-.hist-amt.earn { color: var(--mint); }
-.hist-amt.spend { color: var(--pink); }
+.hist-emo { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.hist-info { flex:1; min-width:0; }
+.hist-kid { font-size:12px; font-weight:600; }
+.hist-reason { font-size:11px; color:var(--dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hist-time { font-size:10px; color:var(--dim); margin-top:1px; }
+.hist-amt { font-size:16px; font-weight:700; flex-shrink:0; }
+.hist-amt.earn { color:var(--mint); }
+.hist-amt.spend { color:var(--pink); }
 
-.empty { text-align: center; padding: 50px 20px; color: var(--dim); }
-.empty-ico { font-size: 44px; margin-bottom: 12px; }
+.empty { text-align:center; padding:50px 20px; color:var(--dim); }
+.empty-ico { font-size:44px; margin-bottom:12px; }
 
-/* ── Bottom nav ── */
 .bnav {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 430px; z-index: 50;
-  background: rgba(13,27,75,.96); backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border);
-  display: flex; padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:430px; z-index:50;
+  background:rgba(13,27,75,.96); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:6px 0 max(6px,env(safe-area-inset-bottom));
 }
 .nbtn {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 7px; border: none; background: transparent; color: var(--dim);
-  cursor: pointer; transition: all .2s; font-family: 'Mitr', sans-serif;
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:7px; border:none; background:transparent; color:var(--dim);
+  cursor:pointer; transition:all .2s; font-family:'Mitr',sans-serif;
 }
-.nbtn.on { color: var(--sun); }
-.nbtn-ico { font-size: 20px; }
-.nbtn-lbl { font-size: 9px; font-weight: 500; }
+.nbtn.on { color:var(--sun); }
+.nbtn-ico { font-size:20px; }
+.nbtn-lbl { font-size:9px; font-weight:500; }
 
-/* ── Modal ── */
 .overlay {
-  position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
-  display: flex; align-items: flex-end; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity .3s;
+  position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  display:flex; align-items:flex-end; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
 }
-.overlay.open { opacity: 1; pointer-events: all; }
+.overlay.open { opacity:1; pointer-events:all; }
 .modal {
-  background: #162258; border-radius: 26px 26px 0 0; padding: 24px 22px 40px;
-  width: 100%; max-width: 430px;
-  transform: translateY(100%); transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  background:#162258; border-radius:26px 26px 0 0; padding:24px 22px 40px;
+  width:100%; max-width:430px;
+  transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
 }
-.overlay.open .modal { transform: translateY(0); }
-.modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,.18); border-radius: 2px; margin: 0 auto 18px; }
-.modal-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 18px; }
-.inp-group { margin-bottom: 13px; }
-.inp-lbl { font-size: 12px; color: var(--dim); margin-bottom: 6px; }
+.overlay.open .modal { transform:translateY(0); }
+.modal-handle { width:36px; height:4px; background:rgba(255,255,255,.18); border-radius:2px; margin:0 auto 18px; }
+.modal-title { font-size:17px; font-weight:700; text-align:center; margin-bottom:18px; }
+.inp-group { margin-bottom:13px; }
+.inp-lbl { font-size:12px; color:var(--dim); margin-bottom:6px; }
 .txt-in {
-  width: 100%; padding: 11px 14px; border-radius: 13px;
-  background: rgba(255,255,255,.07); border: 1px solid var(--border);
-  color: var(--text); font-family: 'Mitr', sans-serif; font-size: 13px;
-  outline: none; transition: border-color .2s;
+  width:100%; padding:11px 14px; border-radius:13px;
+  background:rgba(255,255,255,.07); border:1px solid var(--border);
+  color:var(--text); font-family:'Mitr',sans-serif; font-size:13px;
+  outline:none; transition:border-color .2s;
 }
-.txt-in:focus { border-color: var(--sun); }
-.txt-in::placeholder { color: var(--dim); }
+.txt-in:focus { border-color:var(--sun); }
+.txt-in::placeholder { color:var(--dim); }
 
-.emo-pick { display: flex; flex-wrap: wrap; gap: 9px; }
+.emo-pick { display:flex; flex-wrap:wrap; gap:9px; }
 .emo-opt {
-  width: 46px; height: 46px; border-radius: 50%; font-size: 24px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--glass); border: 2px solid transparent; cursor: pointer; transition: all .15s;
+  width:46px; height:46px; border-radius:50%; font-size:24px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--glass); border:2px solid transparent; cursor:pointer; transition:all .15s;
 }
-.emo-opt.ch { border-color: var(--sun); background: rgba(255,214,0,.1); transform: scale(1.1); }
-
-.col-pick { display: flex; gap: 9px; flex-wrap: wrap; }
-.col-opt {
-  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
-  border: 3px solid transparent; transition: all .15s;
-}
-.col-opt.ch { border-color: #fff; transform: scale(1.15); }
-
+.emo-opt.ch { border-color:var(--sun); background:rgba(255,214,0,.1); transform:scale(1.1); }
+.col-pick { display:flex; gap:9px; flex-wrap:wrap; }
+.col-opt { width:34px; height:34px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all .15s; }
+.col-opt.ch { border-color:#fff; transform:scale(1.15); }
 .modal-btn {
-  width: 100%; padding: 14px; border-radius: 15px; border: none; margin-top: 8px;
-  background: linear-gradient(135deg, var(--sun), var(--sun2));
-  color: var(--sky); font-family: 'Mitr', sans-serif; font-size: 15px; font-weight: 700;
-  cursor: pointer; transition: all .2s;
+  width:100%; padding:14px; border-radius:15px; border:none; margin-top:8px;
+  background:linear-gradient(135deg,var(--sun),var(--sun2));
+  color:var(--sky); font-family:'Mitr',sans-serif; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s;
 }
-.modal-btn:active { transform: scale(.98); }
-.modal-btn:disabled { opacity: .5; cursor: not-allowed; }
+.modal-btn:active { transform:scale(.98); }
+.modal-btn:disabled { opacity:.5; cursor:not-allowed; }
 
-/* ── Toast ── */
 .toast {
-  position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%) translateY(12px);
-  background: rgba(22,34,88,.97); border: 1px solid var(--border);
-  backdrop-filter: blur(12px); border-radius: 18px; padding: 11px 18px;
-  font-size: 13px; font-weight: 500; z-index: 300;
-  opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap;
-  max-width: calc(100vw - 40px); text-align: center;
+  position:fixed; bottom:82px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:rgba(22,34,88,.97); border:1px solid var(--border);
+  backdrop-filter:blur(12px); border-radius:18px; padding:11px 18px;
+  font-size:13px; font-weight:500; z-index:300;
+  opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap;
+  max-width:calc(100vw - 40px); text-align:center;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.ok { border-color: rgba(0,229,160,.4); }
-.toast.err { border-color: rgba(255,107,157,.4); }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.ok { border-color:rgba(0,229,160,.4); }
+.toast.err { border-color:rgba(255,107,157,.4); }
 
-/* ── Star burst ── */
 @keyframes burst { 0%{transform:scale(0) rotate(0deg);opacity:1} 100%{transform:scale(2) rotate(360deg);opacity:0} }
-.sburst { position: fixed; pointer-events: none; z-index: 400; font-size: 28px; animation: burst .7s ease forwards; }
+.sburst { position:fixed; pointer-events:none; z-index:400; font-size:28px; animation:burst .7s ease forwards; }
 
-/* ── Spinner ── */
-.spin {
-  display: inline-block; width: 16px; height: 16px; border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.2); border-top-color: #fff;
-  animation: sp .6s linear infinite; vertical-align: middle;
-}
+.spin { display:inline-block; width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; animation:sp .6s linear infinite; vertical-align:middle; }
 @keyframes sp { to{transform:rotate(360deg)} }
-
-/* ── Config warning ── */
-.cfg-warn {
-  background: rgba(255,176,0,.1); border: 1px solid rgba(255,176,0,.4);
-  border-radius: 14px; padding: 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.7;
-}
-.cfg-warn strong { color: var(--sun); display: block; margin-bottom: 4px; font-size: 13px; }
-.cfg-warn code {
-  background: rgba(255,255,255,.1); border-radius: 6px;
-  padding: 1px 6px; font-size: 11px; font-family: monospace; word-break: break-all;
-}
 </style>
 </head>
 <body>
 
-<!-- Stars -->
 <div id="starsBg"></div>
 
+<!-- ── Family Code Screen ── -->
+<div id="familyScreen">
+  <div class="fam-star">⭐</div>
+  <div class="fam-title">ดาวแห่งความดี</div>
+  <div class="fam-sub">ใส่รหัสครอบครัวเพื่อเข้าใช้งาน<br>ทุกคนในครอบครัวใช้รหัสเดียวกัน</div>
+  <div class="fam-box">
+    <div class="fam-lbl">รหัสครอบครัว</div>
+    <div class="fam-input-row">
+      <input class="fam-in" id="famCodeIn" maxlength="10" placeholder="เช่น FAM2847" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <button class="fam-btn" onclick="enterFamily()">เข้าใช้งาน →</button>
+    <div class="fam-divider">— หรือ —</div>
+    <button class="fam-gen-btn" onclick="genFamilyCode()">🎲 สร้างรหัสใหม่ให้อัตโนมัติ</button>
+    <div id="genCodeResult" style="text-align:center;margin-top:10px;display:none;">
+      รหัสของคุณ: <span class="fam-code-badge" id="genCodeBadge"></span>
+      <div style="font-size:11px;color:var(--dim);margin-top:6px;">แชร์รหัสนี้ให้คนในครอบครัว</div>
+      <button class="fam-btn" style="margin-top:12px;" onclick="useGenCode()">ใช้รหัสนี้ →</button>
+    </div>
+  </div>
+</div>
+
 <!-- Loading splash -->
-<div id="splash">
+<div id="splash" style="display:none;">
   <div class="splash-star">⭐</div>
   <div class="splash-text">ดาวแห่งความดี</div>
-  <div class="splash-sub">กำลังโหลด...</div>
+  <div class="splash-sub" id="splashSub">กำลังโหลด...</div>
 </div>
 
 <!-- App -->
 <div id="app" style="display:none;">
-
-  <!-- Header -->
   <div class="hdr">
     <div class="hdr-top">
       <div>
         <div class="hdr-title">⭐ ดาวแห่งความดี</div>
         <div class="hdr-user" id="hdrUser">กำลังโหลด...</div>
       </div>
-      <div class="hdr-add" onclick="openAddModal()">＋</div>
+      <div class="hdr-right">
+        <div class="hdr-fam" id="hdrFamCode" onclick="switchFamily()" title="เปลี่ยนรหัสครอบครัว"></div>
+        <div class="hdr-add" onclick="openAddModal()">＋</div>
+      </div>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="goTab('kids',this)">👦 เด็กๆ</button>
@@ -401,20 +367,15 @@ html, body {
     </div>
   </div>
 
-  <!-- Pages -->
   <div class="pages">
-
-    <!-- Kids -->
     <div class="page on" id="pg-kids">
       <div class="sec-title">เด็กๆ ของเรา</div>
       <div class="kids-grid" id="kidsGrid"></div>
     </div>
 
-    <!-- Action -->
     <div class="page" id="pg-action">
       <div class="sec-title">เลือกเด็ก</div>
       <div class="kid-chips" id="kidChips"></div>
-
       <div class="panel" id="actionPanel" style="display:none;">
         <div class="panel-head">
           <div class="panel-avatar" id="pAvatar"></div>
@@ -423,7 +384,6 @@ html, body {
             <div class="panel-count">⭐ <span id="pCount">0</span> ดาว</div>
           </div>
         </div>
-
         <div class="amt-row">
           <div class="amt-label">จำนวนดาว</div>
           <div class="amt-ctrl">
@@ -432,9 +392,8 @@ html, body {
             <button class="amt-btn" onclick="chAmt(1)">+</button>
           </div>
         </div>
-
         <div class="preset-label">เหตุผลที่ได้ดาว ✨</div>
-        <div class="presets" id="earnPresets">
+        <div class="presets">
           <div class="chip earn" onclick="pickPreset(this,'ช่วยงานบ้าน')">🏠 ช่วยงานบ้าน</div>
           <div class="chip earn" onclick="pickPreset(this,'ทำการบ้าน')">📚 ทำการบ้าน</div>
           <div class="chip earn" onclick="pickPreset(this,'ตั้งใจเรียน')">🎓 ตั้งใจเรียน</div>
@@ -444,9 +403,8 @@ html, body {
           <div class="chip earn" onclick="pickPreset(this,'นอนตรงเวลา')">😴 นอนตรงเวลา</div>
           <div class="chip earn" onclick="pickPreset(this,'สุภาพ')">😊 สุภาพ</div>
         </div>
-
         <div class="preset-label" style="margin-top:10px;">เหตุผลที่ใช้ดาว 💫</div>
-        <div class="presets" id="spendPresets">
+        <div class="presets">
           <div class="chip spend" onclick="pickPreset(this,'ดูการ์ตูน 30 นาที')">📺 การ์ตูน</div>
           <div class="chip spend" onclick="pickPreset(this,'เล่นเกม 30 นาที')">🎮 เล่นเกม</div>
           <div class="chip spend" onclick="pickPreset(this,'กินของว่าง')">🍭 ของว่าง</div>
@@ -454,12 +412,10 @@ html, body {
           <div class="chip spend" onclick="pickPreset(this,'ซื้อของเล่น')">🧸 ของเล่น</div>
           <div class="chip spend" onclick="pickPreset(this,'เลือกเมนูอาหาร')">🍔 เลือกเมนู</div>
         </div>
-
         <div style="margin-top:12px;">
           <div class="preset-label">หรือระบุเหตุผลเอง</div>
           <textarea class="reason-in" id="reasonIn" placeholder="เขียนเหตุผล..."></textarea>
         </div>
-
         <div class="act-btns">
           <button class="btn-earn" id="btnEarn" onclick="doAction('earn')">⭐ ให้ดาว</button>
           <button class="btn-spend" id="btnSpend" onclick="doAction('spend')">💫 ใช้ดาว</button>
@@ -467,7 +423,6 @@ html, body {
       </div>
     </div>
 
-    <!-- History -->
     <div class="page" id="pg-history">
       <div class="filter-row" id="typeFilter">
         <div class="fchip on" onclick="fType('all',this)">🌟 ทั้งหมด</div>
@@ -478,10 +433,8 @@ html, body {
       <div class="hist-list" id="histList"></div>
     </div>
   </div>
-
 </div>
 
-<!-- Bottom nav -->
 <div class="bnav">
   <button class="nbtn on" onclick="goTab('kids',null,this)">
     <div class="nbtn-ico">👦</div><div class="nbtn-lbl">เด็กๆ</div>
@@ -505,7 +458,7 @@ html, body {
     </div>
     <div class="inp-group">
       <div class="inp-lbl">เลือก Emoji</div>
-      <div class="emo-pick" id="emoPick">
+      <div class="emo-pick">
         <div class="emo-opt ch" onclick="pickEmo(this)" data-e="👦">👦</div>
         <div class="emo-opt" onclick="pickEmo(this)" data-e="👧">👧</div>
         <div class="emo-opt" onclick="pickEmo(this)" data-e="🧒">🧒</div>
@@ -520,7 +473,7 @@ html, body {
     </div>
     <div class="inp-group">
       <div class="inp-lbl">สีธีม</div>
-      <div class="col-pick" id="colPick">
+      <div class="col-pick">
         <div class="col-opt ch" onclick="pickCol(this)" data-c="#FFD600" style="background:#FFD600"></div>
         <div class="col-opt" onclick="pickCol(this)" data-c="#FF6B9D" style="background:#FF6B9D"></div>
         <div class="col-opt" onclick="pickCol(this)" data-c="#00E5A0" style="background:#00E5A0"></div>
@@ -533,32 +486,20 @@ html, body {
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ╔══════════════════════════════════════════════╗
-// ║           🔧 ตั้งค่าตรงนี้เลย               ║
-// ╚══════════════════════════════════════════════╝
-
-const LIFF_ID          = '2009406093-zrOSZh6O';           // จาก LINE Developers Console
-const APPS_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbzUGrQFNIb7Wtg-6-LgzZ7NSutGVumKQ0E8E9TzD1s2lliOsuS_LOcj9nnDmXEjxqNT/exec';   // จาก Google Apps Script deploy
-
-// ════════════════════════════════════════════════
-
-const IS_CONFIGURED = LIFF_ID !== '2009406093-zrOSZh6O' && APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_URL';
+// ── CONFIG ──
+const LIFF_ID         = '2009406093-zrOSZh6O';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLIS9soJcRJQcUh9JwLNcqER9cBwQrl2flotUllUdnuvpM8FkhI7r4vQ5M3kekmj_0/exec';
 
 // ── State ──
-let kids = [];
-let history = [];
-let selKidId = null;
-let histType = 'all';
-let histKid = 'all';
-let newEmo = '👦';
-let newCol = '#FFD600';
-let userName = '';
-let userId = '';
-let loading = false;
+let kids = [], history = [], selKidId = null;
+let histType = 'all', histKid = 'all';
+let newEmo = '👦', newCol = '#FFD600';
+let userName = '', userId = '', loading = false;
+let familyCode = '';   // รหัสครอบครัว — ส่งไปทุก API call
+let genCode = '';
 
 // ── Stars bg ──
 (function(){
@@ -572,81 +513,76 @@ let loading = false;
   }
 })();
 
-// ── API helpers ──
-async function api(action, data={}) {
-  if (!IS_CONFIGURED) {
-    // Demo mode — use localStorage
-    return apiLocal(action, data);
-  }
-  const params = new URLSearchParams({ action, ...data });
-  const r = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
-  if (!r.ok) throw new Error('API error ' + r.status);
-  return r.json();
+// ── Family Code UI ──
+function genFamilyCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  genCode = 'FAM' + Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  document.getElementById('genCodeBadge').textContent = genCode;
+  document.getElementById('genCodeResult').style.display = 'block';
 }
 
-// LocalStorage fallback (demo mode)
-function apiLocal(action, data) {
-  const kids_ = JSON.parse(localStorage.getItem('_kids') || '[]');
-  const hist_  = JSON.parse(localStorage.getItem('_hist') || '[]');
+function useGenCode() {
+  document.getElementById('famCodeIn').value = genCode;
+  enterFamily();
+}
 
-  if (action === 'getKids')    return { ok:true, kids: kids_ };
-  if (action === 'getHistory') return { ok:true, history: hist_.slice(0,80) };
+function enterFamily() {
+  const code = document.getElementById('famCodeIn').value.trim().toUpperCase().replace(/\s/g,'');
+  if (code.length < 3) { toast('⚠️ รหัสต้องมีอย่างน้อย 3 ตัวอักษร', 'err'); return; }
+  familyCode = code;
+  localStorage.setItem('_famCode', familyCode);
+  document.getElementById('familyScreen').style.display = 'none';
+  startApp();
+}
 
-  if (action === 'addKid') {
-    const kid = { id: Date.now()+'', name: data.name, emoji: data.emoji, color: data.color, stars: 0 };
-    kids_.push(kid);
-    localStorage.setItem('_kids', JSON.stringify(kids_));
-    return { ok:true, kid };
-  }
-
-  if (action === 'transaction') {
-    const kid = kids_.find(k => k.id === data.kidId);
-    if (!kid) return { ok:false, error:'kid not found' };
-    const amt = parseInt(data.amount);
-    const type = data.type;
-    if (type === 'spend' && kid.stars < amt) return { ok:false, error:'not enough stars' };
-    kid.stars += type === 'earn' ? amt : -amt;
-    if (kid.stars < 0) kid.stars = 0;
-    localStorage.setItem('_kids', JSON.stringify(kids_));
-    const h = { id: Date.now()+'', kidId: kid.id, kidName: kid.name, kidEmoji: kid.emoji, kidColor: kid.color, type, amount: amt, reason: data.reason, time: new Date().toISOString(), by: userName||'ไม่ระบุ' };
-    hist_.unshift(h);
-    localStorage.setItem('_hist', JSON.stringify(hist_));
-    return { ok:true, stars: kid.stars, history: h };
-  }
-  return { ok:false };
+function switchFamily() {
+  if (!confirm('เปลี่ยนรหัสครอบครัว?\nข้อมูลในเครื่องจะถูกล้าง แต่ข้อมูลใน Google Sheets ยังอยู่')) return;
+  localStorage.removeItem('_famCode');
+  familyCode = '';
+  kids = []; history = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('familyScreen').style.display = 'flex';
+  document.getElementById('famCodeIn').value = '';
+  document.getElementById('genCodeResult').style.display = 'none';
 }
 
 // ── Init ──
 async function init() {
-  // Show config warning if not configured
-  if (!IS_CONFIGURED) {
-    document.getElementById('cfgWarn').style.display = 'block';
+  // ตรวจว่าเคยกรอกรหัสไว้ไหม
+  const saved = localStorage.getItem('_famCode');
+  if (saved) {
+    familyCode = saved;
+    document.getElementById('familyScreen').style.display = 'none';
+    startApp();
   }
+  // ถ้าไม่มี → แสดงหน้ากรอกรหัส (default)
+}
 
-  // Try LIFF
+async function startApp() {
+  document.getElementById('splash').style.display = 'flex';
+  document.getElementById('splashSub').textContent = 'กำลังโหลด ' + familyCode + '...';
+
+  // LIFF
   try {
     await liff.init({ liffId: LIFF_ID });
     if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      userName = profile.displayName;
-      userId = profile.userId;
+      const p = await liff.getProfile();
+      userName = p.displayName; userId = p.userId;
       document.getElementById('hdrUser').textContent = '👤 ' + userName;
     } else {
-      if (IS_CONFIGURED) liff.login();
-      document.getElementById('hdrUser').textContent = IS_CONFIGURED ? 'กำลัง login...' : '🔧 Demo Mode';
+      liff.login();
+      return;
     }
   } catch(e) {
-    // Not in LIFF (browser preview)
     userName = 'ผู้ดูแล';
-    document.getElementById('hdrUser').textContent = IS_CONFIGURED ? '⚠️ เปิดผ่าน LINE' : '🔧 Demo Mode (Browser)';
+    document.getElementById('hdrUser').textContent = '⚠️ เปิดผ่าน LINE';
   }
 
   await loadKids();
   await loadHistory();
-
-  // Auto-select first kid for action tab
   if (kids.length > 0) selKidId = kids[0].id;
 
+  document.getElementById('hdrFamCode').textContent = familyCode;
   document.getElementById('splash').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
 
@@ -655,190 +591,142 @@ async function init() {
   renderHistory();
 }
 
-// ── Load ──
+// ── API ── (ส่ง familyCode ไปทุก request)
+async function api(action, data={}) {
+  const params = new URLSearchParams({ action, familyCode, ...data });
+  const r = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
+  if (!r.ok) throw new Error('API error ' + r.status);
+  return r.json();
+}
+
 async function loadKids() {
-  try {
-    const r = await api('getKids');
-    if (r.ok) kids = r.kids;
-  } catch(e) { toast('⚠️ โหลดข้อมูลไม่ได้', 'err'); }
+  try { const r = await api('getKids'); if(r.ok) kids = r.kids; }
+  catch(e) { toast('⚠️ โหลดข้อมูลไม่ได้','err'); }
 }
-
 async function loadHistory() {
-  try {
-    const r = await api('getHistory');
-    if (r.ok) history = r.history;
-  } catch(e) {}
+  try { const r = await api('getHistory'); if(r.ok) history = r.history; }
+  catch(e) {}
 }
 
-// ── Render Kids ──
+// ── Render ──
 function renderKids() {
   const g = document.getElementById('kidsGrid');
   g.innerHTML = '';
   kids.forEach(k => {
-    const cnt = history.filter(h => h.kidId === k.id && h.type === 'earn').length;
+    const cnt = history.filter(h => h.kidId===k.id && h.type==='earn').length;
     const d = document.createElement('div');
-    d.className = 'kid-card' + (selKidId === k.id ? ' sel' : '');
-    d.onclick = () => { selKidId = k.id; renderKids(); };
+    d.className = 'kid-card'+(selKidId===k.id?' sel':'');
+    d.onclick = ()=>{ selKidId=k.id; renderKids(); };
     d.innerHTML = `
       <span class="kid-emoji">${k.emoji}</span>
       <div class="kid-name">${k.name}</div>
       <div class="kid-stars"><span class="kid-star-n">${k.stars}</span>&nbsp;ดาว ⭐</div>
-      ${cnt > 0 ? `<div class="kid-rank">🔥 ${cnt}×</div>` : ''}
+      ${cnt>0?`<div class="kid-rank">🔥 ${cnt}×</div>`:''}
     `;
-    d.style.setProperty('--kc', k.color);
-    if (selKidId === k.id) d.style.borderColor = k.color;
+    if(selKidId===k.id) d.style.borderColor=k.color;
     g.appendChild(d);
   });
   const add = document.createElement('div');
-  add.className = 'add-card';
-  add.onclick = openAddModal;
-  add.innerHTML = `<div class="add-card-plus">＋</div><span>เพิ่มเด็ก</span>`;
+  add.className='add-card'; add.onclick=openAddModal;
+  add.innerHTML=`<div class="add-card-plus">＋</div><span>เพิ่มเด็ก</span>`;
   g.appendChild(add);
 }
 
-// ── Render Action chips ──
 function renderActionChips() {
   const row = document.getElementById('kidChips');
-  row.innerHTML = '';
-  kids.forEach(k => {
-    const c = document.createElement('div');
-    c.className = 'kid-chip' + (selKidId === k.id ? ' on' : '');
-    if (selKidId === k.id) { c.style.background = k.color + '22'; c.style.borderColor = k.color; }
-    c.innerHTML = k.emoji + ' ' + k.name;
-    c.onclick = () => { selKidId = k.id; renderActionChips(); renderActionPanel(); };
+  row.innerHTML='';
+  kids.forEach(k=>{
+    const c=document.createElement('div');
+    c.className='kid-chip'+(selKidId===k.id?' on':'');
+    if(selKidId===k.id){c.style.background=k.color+'22';c.style.borderColor=k.color;}
+    c.innerHTML=k.emoji+' '+k.name;
+    c.onclick=()=>{selKidId=k.id;renderActionChips();renderActionPanel();};
     row.appendChild(c);
   });
   renderActionPanel();
 }
 
 function renderActionPanel() {
-  const panel = document.getElementById('actionPanel');
-  const kid = kids.find(k => k.id === selKidId);
-  if (!kid) { panel.style.display = 'none'; return; }
-  panel.style.display = 'block';
-  document.getElementById('pAvatar').innerHTML = `<span style="font-size:26px;">${kid.emoji}</span>`;
-  document.getElementById('pAvatar').style.background = kid.color + '33';
-  document.getElementById('pName').textContent = kid.name;
-  document.getElementById('pCount').textContent = kid.stars;
+  const panel=document.getElementById('actionPanel');
+  const kid=kids.find(k=>k.id===selKidId);
+  if(!kid){panel.style.display='none';return;}
+  panel.style.display='block';
+  document.getElementById('pAvatar').innerHTML=`<span style="font-size:26px;">${kid.emoji}</span>`;
+  document.getElementById('pAvatar').style.background=kid.color+'33';
+  document.getElementById('pName').textContent=kid.name;
+  document.getElementById('pCount').textContent=kid.stars;
 }
 
-// ── Actions ──
-function chAmt(d) {
-  const i = document.getElementById('amtIn');
-  i.value = Math.max(1, Math.min(99, (parseInt(i.value)||1) + d));
+function chAmt(d){
+  const i=document.getElementById('amtIn');
+  i.value=Math.max(1,Math.min(99,(parseInt(i.value)||1)+d));
 }
 
-function pickPreset(el, text) {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('picked'));
+function pickPreset(el,text){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('picked'));
   el.classList.add('picked');
-  document.getElementById('reasonIn').value = text;
+  document.getElementById('reasonIn').value=text;
 }
 
-async function doAction(type) {
-  if (loading) return;
-  const kid = kids.find(k => k.id === selKidId);
-  if (!kid) { toast('⚠️ เลือกเด็กก่อนนะ', 'err'); return; }
-  const amt = parseInt(document.getElementById('amtIn').value) || 1;
-  const reason = document.getElementById('reasonIn').value.trim() || (type === 'earn' ? 'ทำความดี' : 'แลกรางวัล');
-
-  if (type === 'spend' && kid.stars < amt) {
-    toast(`❌ ดาวไม่พอ! ${kid.name} มี ${kid.stars} ดาว`, 'err'); return;
-  }
-
+async function doAction(type){
+  if(loading)return;
+  const kid=kids.find(k=>k.id===selKidId);
+  if(!kid){toast('⚠️ เลือกเด็กก่อนนะ','err');return;}
+  const amt=parseInt(document.getElementById('amtIn').value)||1;
+  const reason=document.getElementById('reasonIn').value.trim()||(type==='earn'?'ทำความดี':'แลกรางวัล');
+  if(type==='spend'&&kid.stars<amt){toast(`❌ ดาวไม่พอ! ${kid.name} มี ${kid.stars} ดาว`,'err');return;}
   setLoading(true);
-  try {
-    const r = await api('transaction', { kidId: kid.id, type, amount: amt, reason, by: userName || 'ไม่ระบุ', userId });
-    if (!r.ok) { toast('❌ ' + (r.error || 'เกิดข้อผิดพลาด'), 'err'); return; }
-
-    // Update local state
-    kid.stars = r.stars !== undefined ? r.stars : (kid.stars + (type === 'earn' ? amt : -amt));
-    if (r.history) history.unshift(r.history);
-
-    if (type === 'earn') for(let i=0;i<5;i++) setTimeout(spawnBurst, i*100);
-    const msg = type === 'earn'
-      ? `⭐ ${kid.name} ได้ +${amt} ดาว! (รวม ${kid.stars})`
-      : `💫 ${kid.name} ใช้ ${amt} ดาว (เหลือ ${kid.stars})`;
-    toast(msg, type === 'earn' ? 'ok' : '');
-
-    // Reset
-    document.getElementById('reasonIn').value = '';
-    document.getElementById('amtIn').value = 1;
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('picked'));
-
-    renderKids();
-    renderActionPanel();
-    renderHistory();
-  } catch(e) {
-    toast('❌ เชื่อมต่อไม่ได้ ลองใหม่', 'err');
-  } finally {
-    setLoading(false);
-  }
+  try{
+    const r=await api('transaction',{kidId:kid.id,type,amount:amt,reason,by:userName||'ไม่ระบุ',userId});
+    if(!r.ok){toast('❌ '+(r.error||'เกิดข้อผิดพลาด'),'err');return;}
+    kid.stars=r.stars!==undefined?r.stars:(kid.stars+(type==='earn'?amt:-amt));
+    if(r.history)history.unshift(r.history);
+    if(type==='earn')for(let i=0;i<5;i++)setTimeout(spawnBurst,i*100);
+    toast(type==='earn'?`⭐ ${kid.name} ได้ +${amt} ดาว! (รวม ${kid.stars})`:`💫 ${kid.name} ใช้ ${amt} ดาว (เหลือ ${kid.stars})`,type==='earn'?'ok':'');
+    document.getElementById('reasonIn').value='';
+    document.getElementById('amtIn').value=1;
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('picked'));
+    renderKids();renderActionPanel();renderHistory();
+  }catch(e){toast('❌ เชื่อมต่อไม่ได้ ลองใหม่','err');}
+  finally{setLoading(false);}
 }
 
-function setLoading(on) {
-  loading = on;
-  document.getElementById('btnEarn').disabled = on;
-  document.getElementById('btnSpend').disabled = on;
-  if (on) {
-    document.getElementById('btnEarn').innerHTML = '<span class="spin"></span>';
-    document.getElementById('btnSpend').innerHTML = '<span class="spin"></span>';
-  } else {
-    document.getElementById('btnEarn').innerHTML = '⭐ ให้ดาว';
-    document.getElementById('btnSpend').innerHTML = '💫 ใช้ดาว';
-  }
+function setLoading(on){
+  loading=on;
+  document.getElementById('btnEarn').disabled=on;
+  document.getElementById('btnSpend').disabled=on;
+  document.getElementById('btnEarn').innerHTML=on?'<span class="spin"></span>':'⭐ ให้ดาว';
+  document.getElementById('btnSpend').innerHTML=on?'<span class="spin"></span>':'💫 ใช้ดาว';
 }
 
-// ── History ──
-function fType(t, el) {
-  histType = t;
-  document.querySelectorAll('#typeFilter .fchip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-  renderHistory();
-}
-function fKid(k, el) {
-  histKid = k;
-  document.querySelectorAll('#kidFilter .fchip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-  renderHistory();
-}
+function fType(t,el){histType=t;document.querySelectorAll('#typeFilter .fchip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderHistory();}
+function fKid(k,el){histKid=k;document.querySelectorAll('#kidFilter .fchip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderHistory();}
 
-function renderHistory() {
-  // Kid filter chips
-  const kf = document.getElementById('kidFilter');
-  kf.innerHTML = '';
-  const all = document.createElement('div');
-  all.className = 'fchip' + (histKid === 'all' ? ' on' : '');
-  all.innerHTML = '👥 ทุกคน';
-  all.onclick = function() { fKid('all', this); };
-  kf.appendChild(all);
-  kids.forEach(k => {
-    const c = document.createElement('div');
-    c.className = 'fchip' + (histKid === k.id ? ' on' : '');
-    c.innerHTML = k.emoji + ' ' + k.name;
-    c.onclick = function() { fKid(k.id, this); };
-    kf.appendChild(c);
+function renderHistory(){
+  const kf=document.getElementById('kidFilter');kf.innerHTML='';
+  const all=document.createElement('div');
+  all.className='fchip'+(histKid==='all'?' on':'');all.innerHTML='👥 ทุกคน';
+  all.onclick=function(){fKid('all',this);};kf.appendChild(all);
+  kids.forEach(k=>{
+    const c=document.createElement('div');
+    c.className='fchip'+(histKid===k.id?' on':'');
+    c.innerHTML=k.emoji+' '+k.name;
+    c.onclick=function(){fKid(k.id,this);};kf.appendChild(c);
   });
-
-  let list = history;
-  if (histType !== 'all') list = list.filter(h => h.type === histType);
-  if (histKid !== 'all') list = list.filter(h => h.kidId === histKid);
-
-  const el = document.getElementById('histList');
-  if (list.length === 0) {
-    el.innerHTML = `<div class="empty"><div class="empty-ico">✨</div><p>ยังไม่มีประวัติ</p></div>`;
-    return;
-  }
-  el.innerHTML = '';
-  list.slice(0, 60).forEach(h => {
-    const d = new Date(h.time);
-    const t = d.toLocaleDateString('th-TH',{day:'numeric',month:'short'}) + ' ' +
-              d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    const item = document.createElement('div');
-    item.className = 'hist-item';
-    item.innerHTML = `
+  let list=history;
+  if(histType!=='all')list=list.filter(h=>h.type===histType);
+  if(histKid!=='all')list=list.filter(h=>h.kidId===histKid);
+  const el=document.getElementById('histList');
+  if(list.length===0){el.innerHTML=`<div class="empty"><div class="empty-ico">✨</div><p>ยังไม่มีประวัติ</p></div>`;return;}
+  el.innerHTML='';
+  list.slice(0,60).forEach(h=>{
+    const d=new Date(h.time);
+    const t=d.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    const item=document.createElement('div');item.className='hist-item';
+    item.innerHTML=`
       <div class="hist-emo" style="background:${h.kidColor||'rgba(255,255,255,.06)'}22">${h.kidEmoji||'👶'}</div>
       <div class="hist-info">
-        <div class="hist-kid">${h.kidName} ${h.by ? '<span style="font-size:10px;color:var(--dim)">โดย '+h.by+'</span>' : ''}</div>
+        <div class="hist-kid">${h.kidName} ${h.by?'<span style="font-size:10px;color:var(--dim)">โดย '+h.by+'</span>':''}</div>
         <div class="hist-reason">${h.reason}</div>
         <div class="hist-time">${t}</div>
       </div>
@@ -848,88 +736,61 @@ function renderHistory() {
   });
 }
 
-// ── Navigation ──
-function goTab(id, tabEl, navEl) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('on'));
-  document.getElementById('pg-' + id).classList.add('on');
-  if (tabEl) tabEl.classList.add('on');
-  if (navEl) navEl.classList.add('on');
-
-  // sync tab + nav
-  const i = {kids:0,action:1,history:2}[id];
+function goTab(id,tabEl,navEl){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  const i={kids:0,action:1,history:2}[id];
   document.querySelectorAll('.tab')[i].classList.add('on');
   document.querySelectorAll('.nbtn')[i].classList.add('on');
-
-  if (id === 'action') { renderActionChips(); }
-  if (id === 'history') renderHistory();
+  if(id==='action')renderActionChips();
+  if(id==='history')renderHistory();
 }
 
-// ── Add kid modal ──
-function openAddModal() {
-  document.getElementById('newName').value = '';
-  newEmo = '👦'; newCol = '#FFD600';
-  document.querySelectorAll('.emo-opt').forEach(e => e.classList.remove('ch'));
+function openAddModal(){
+  document.getElementById('newName').value='';
+  newEmo='👦';newCol='#FFD600';
+  document.querySelectorAll('.emo-opt').forEach(e=>e.classList.remove('ch'));
   document.querySelector('.emo-opt[data-e="👦"]').classList.add('ch');
-  document.querySelectorAll('.col-opt').forEach(c => c.classList.remove('ch'));
+  document.querySelectorAll('.col-opt').forEach(c=>c.classList.remove('ch'));
   document.querySelector('.col-opt[data-c="#FFD600"]').classList.add('ch');
   document.getElementById('addModal').classList.add('open');
 }
-function closeModal(e) {
-  if (e.target === document.getElementById('addModal')) document.getElementById('addModal').classList.remove('open');
-}
-function pickEmo(el) {
-  document.querySelectorAll('.emo-opt').forEach(e => e.classList.remove('ch'));
-  el.classList.add('ch'); newEmo = el.dataset.e;
-}
-function pickCol(el) {
-  document.querySelectorAll('.col-opt').forEach(c => c.classList.remove('ch'));
-  el.classList.add('ch'); newCol = el.dataset.c;
-}
+function closeModal(e){if(e.target===document.getElementById('addModal'))document.getElementById('addModal').classList.remove('open');}
+function pickEmo(el){document.querySelectorAll('.emo-opt').forEach(e=>e.classList.remove('ch'));el.classList.add('ch');newEmo=el.dataset.e;}
+function pickCol(el){document.querySelectorAll('.col-opt').forEach(c=>c.classList.remove('ch'));el.classList.add('ch');newCol=el.dataset.c;}
 
-async function addKid() {
-  const name = document.getElementById('newName').value.trim();
-  if (!name) { toast('⚠️ กรอกชื่อด้วยนะ', 'err'); return; }
-  const btn = document.getElementById('addBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> บันทึก';
-  try {
-    const r = await api('addKid', { name, emoji: newEmo, color: newCol });
-    if (!r.ok) { toast('❌ เพิ่มไม่ได้', 'err'); return; }
-    kids.push(r.kid);
-    selKidId = r.kid.id;
+async function addKid(){
+  const name=document.getElementById('newName').value.trim();
+  if(!name){toast('⚠️ กรอกชื่อด้วยนะ','err');return;}
+  const btn=document.getElementById('addBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> บันทึก';
+  try{
+    const r=await api('addKid',{name,emoji:newEmo,color:newCol});
+    if(!r.ok){toast('❌ เพิ่มไม่ได้','err');return;}
+    kids.push(r.kid);selKidId=r.kid.id;
     document.getElementById('addModal').classList.remove('open');
-    toast(`🎉 เพิ่ม ${name} แล้ว!`, 'ok');
-    renderKids();
-    renderActionChips();
-  } catch(e) {
-    toast('❌ เชื่อมต่อไม่ได้', 'err');
-  } finally {
-    btn.disabled = false; btn.innerHTML = 'บันทึก ✨';
-  }
+    toast(`🎉 เพิ่ม ${name} แล้ว!`,'ok');
+    renderKids();renderActionChips();
+  }catch(e){toast('❌ เชื่อมต่อไม่ได้','err');}
+  finally{btn.disabled=false;btn.innerHTML='บันทึก ✨';}
 }
 
-// ── Utils ──
 let toastTimer;
-function toast(msg, cls='') {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'toast ' + cls + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+function toast(msg,cls=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast '+cls+' show';
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3200);
 }
 
-function spawnBurst() {
-  const el = document.createElement('div');
-  el.className = 'sburst'; el.textContent = '⭐';
-  el.style.left = (15 + Math.random() * 70) + '%';
-  el.style.top  = (25 + Math.random() * 50) + '%';
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 750);
+function spawnBurst(){
+  const el=document.createElement('div');el.className='sburst';el.textContent='⭐';
+  el.style.left=(15+Math.random()*70)+'%';el.style.top=(25+Math.random()*50)+'%';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),750);
 }
 
-// Start
 init();
 </script>
-
 </body>
 </html>
